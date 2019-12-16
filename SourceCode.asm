@@ -12,7 +12,8 @@ msg1 byte 0AH, "### WELCOME TO LIBRARY MANAGEMENT SYSTEM ###", 0dh, 0ah, 0ah,
 REG_MSG BYTE "Enter Member's Name to register: ",0
 UNREG_MSG BYTE "Enter Member's Name to unregister: ",0
 VIEW_MEMBERS_MSG BYTE "Viewing Registered Members: ",0
-ADD_MSG BYTE "Enter Book Name to Add: ",0
+ADD_MSG BYTE "Enter Book Name & Author Name to Add: ", 0dh, 0ah,
+			 "Separated By Comma:",0
 REMOVE_MSG BYTE "Enter Book Name to Remove: ",0
 VIEW_BOOKS_MSG BYTE "Viewing Books in Library: ",0
 EXIT_MSG BYTE "Exiting Program...",0dh, 0ah,
@@ -83,11 +84,6 @@ INVOKE SetFilePointer,
 	call READSTRING
 	mov eax, filehandle
 	call WriteToFile
-	;INVOKE WriteFile,
-	;filehandle, 
-	;addr buffer,
-	;sizeof buffer,
-	;addr bytesWritten, 0
 
 	INVOKE SetFilePointer,
 	 filehandle,
@@ -132,7 +128,7 @@ INVOKE SetFilePointer,
 	mov eax,filehandle
 
 	mov edx, offset BUFFER_BOOK
-	mov ecx, 7
+	mov ecx, 15
 	call READSTRING
 	mov eax, filehandle
 	call WriteToFile
