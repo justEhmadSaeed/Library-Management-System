@@ -21,10 +21,12 @@ EXIT_MSG BYTE "Exiting Program...",0dh, 0ah,
 MEMBERS_FILE BYTE "MEMBERS.txt",0
 BOOKS_FILE BYTE "BOOKS.txt",0
 BUFFER_SIZE = 5000
+filehandle dword ?
 
 MAX_INPUT = 40
 INPUT_STRING BYTE MAX_INPUT+1 DUP (?)
-
+buffer_mem byte buffer_size DUP (?)
+buffer_book byte buffer_size DUP (?)
 REGISTER DWORD 1
 UNREGISTER DWORD 2
 VIEW_MEMBERS DWORD 3
@@ -55,10 +57,49 @@ main proc
 		JMP EXIT_MENU
 	REG_M:
 		INVOKE MSG_DISPLAY, ADDR REG_MSG
-		INVOKE STRING_INPUT, ADDR INPUT_STRING
-		MOV EDX, OFFSET MEMBERS_FILE
+		;INVOKE STRING_INPUT, ADDR INPUT_STRING
+
+		INVOKE CreateFile,
+	ADDR MEMBERS_FILE,
+	GENERIC_WRITE,
+	DO_NOT_SHARE, 
+	NULL, 
+	OPEN_ALWAYS, 
+	FILE_ATTRIBUTE_NORMAL, 
+	0
+
+cmp eax, INVALID_HANDLE_VALUE
+	je exit_1
+	mov filehandle, eax
+INVOKE SetFilePointer,
+	 filehandle,
+	0, ; distance low
+	0, ; distance high
+	FILE_END
+	mov eax,filehandle
+
+	mov edx, offset BUFFER_MEM
+	mov ecx, 7
+	call READSTRING
+	mov eax, filehandle
+	call WriteToFile
+	;INVOKE WriteFile,
+	;filehandle, 
+	;addr buffer,
+	;sizeof buffer,
+	;addr bytesWritten, 0
+
+	INVOKE SetFilePointer,
+	 filehandle,
+	0, ; distance low
+	0, ; distance high
+	FILE_END
+exit_1:
+	invoke CloseHandle, filehandle
 
 		JMP START
+
+; UnRegister Segment
 	UNREG_M:
 		INVOKE MSG_DISPLAY, ADDR UNREG_MSG
 		INVOKE STRING_INPUT, ADDR INPUT_STRING
@@ -70,8 +111,44 @@ main proc
 		
 	ADD_B:
 		INVOKE MSG_DISPLAY, ADDR ADD_MSG
-		INVOKE STRING_INPUT, ADDR INPUT_STRING
+		;INVOKE STRING_INPUT, ADDR INPUT_STRING
+INVOKE CreateFile,
+	ADDR BOOKS_FILE,
+	GENERIC_WRITE,
+	DO_NOT_SHARE, 
+	NULL, 
+	OPEN_ALWAYS, 
+	FILE_ATTRIBUTE_NORMAL, 
+	0
 
+cmp eax, INVALID_HANDLE_VALUE
+	je exit_2
+	mov filehandle, eax
+INVOKE SetFilePointer,
+	 filehandle,
+	0, ; distance low
+	0, ; distance high
+	FILE_END
+	mov eax,filehandle
+
+	mov edx, offset BUFFER_BOOK
+	mov ecx, 7
+	call READSTRING
+	mov eax, filehandle
+	call WriteToFile
+	;INVOKE WriteFile,
+	;filehandle, 
+	;addr buffer,
+	;sizeof buffer,
+	;addr bytesWritten, 0
+
+	INVOKE SetFilePointer,
+	 filehandle,
+	0, ; distance low
+	0, ; distance high
+	FILE_END
+exit_2:
+	invoke CloseHandle, filehandle
 		JMP START
 
 	REMOVE_B:
