@@ -1,26 +1,26 @@
 INCLUDE IRVINE32.inc
 .data
 msg1 BYTE 0AH, 
-		"--------------------------------------------", 0dh, 0ah,
-		"--  WELCOME TO LIBRARY MANAGEMENT SYSTEM  --", 0dh, 0ah,
-		"--------------------------------------------", 0dh, 0ah, 0ah,
-		"Choose One of the Following Options:", 0dh, 0ah,
-		"1-> Register a Member", 0dh, 0ah,
-		"2-> Unregister a Member", 0dh, 0ah,
-		"3-> View Members", 0dh, 0ah,
-		"4-> Add Book", 0dh, 0ah,
-		"5-> Remove Book", 0dh, 0ah,
-		"6-> View Books", 0dh, 0ah,
-		"7-> Exit Program", 0dh, 0ah, 0
-REG_MSG BYTE "Enter Member's Name to register: ",0
-UNREG_MSG BYTE "Enter Member's Name to unregister: ",0
-VIEW_MEMBERS_MSG BYTE "Viewing Registered Members: ",0
-ADD_MSG BYTE "Enter Book Name & Author Name to Add: ", 0dh, 0ah,
-			 "Separated By Comma:",0
-REMOVE_MSG BYTE "Enter Book Name to Remove: ",0
-VIEW_BOOKS_MSG BYTE "Viewing Books in Library: ",0
-EXIT_MSG BYTE "Exiting Program...",0dh, 0ah,
-				"See you again :')", 0
+		"	--------------------------------------------", 0dh, 0ah,
+		"	--  WELCOME TO LIBRARY MANAGEMENT SYSTEM  --", 0dh, 0ah,
+		"	--------------------------------------------", 0dh, 0ah, 0ah,
+		"	Choose One of the Following Options:", 0dh, 0ah,
+		"	1-> Register a Member", 0dh, 0ah,
+		"	2-> Unregister a Member", 0dh, 0ah,
+		"	3-> View Members", 0dh, 0ah,
+		"	4-> Add Book", 0dh, 0ah,
+		"	5-> Remove Book", 0dh, 0ah,
+		"	6-> View Books", 0dh, 0ah,
+		"	7-> Exit Program", 0dh, 0ah, 0
+REG_MSG BYTE "	Enter Member's Name to register: ",0
+UNREG_MSG BYTE "	Enter Member's Name to unregister: ",0
+VIEW_MEMBERS_MSG BYTE "	Viewing Registered Members: ",0
+ADD_MSG BYTE "	Enter Book Name & Author Name to Add: ", 0dh, 0ah,
+			 "	Separated By Comma:",0
+REMOVE_MSG BYTE "	Enter Book Name to Remove: ",0
+VIEW_BOOKS_MSG BYTE "	Viewing Books in Library: ",0
+EXIT_MSG BYTE "	Exiting Program...",0dh, 0ah,
+				"	See you again :')", 0
 
 MEMBERS_FILE BYTE "MEMBERS.txt",0
 BOOKS_FILE BYTE "BOOKS.txt",0
