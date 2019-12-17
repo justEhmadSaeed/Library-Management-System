@@ -9,7 +9,16 @@
 ; ***** ABDULLAH SALEEM	2018-CS-39 ******
 ; ***************************************
 INCLUDE IRVINE32.inc
+
+; ************************************************
+; **************** Data Section ******************
+; ************************************************
 .DATA
+
+;***********************************************
+; ****** Strings of messages to display ********
+;***********************************************
+
 msg1	 BYTE 0AH
 		 BYTE	"	--------------------------------------------", 0dh, 0ah
 		 BYTE	"	--  WELCOME TO LIBRARY MANAGEMENT SYSTEM  --", 0dh, 0ah
@@ -32,6 +41,10 @@ EXIT_MSG	   BYTE 0AH,
 				    "	Exiting Program...",0dh, 0ah,
 					"	See you again  :')",0dh, 0ah,
 					"	------------------", 0
+					
+					
+; variables to maniulate Books & Members
+
 bool		   DWORD ?
 MEMBERS_FILE   BYTE "MEMBERS.txt",0
 BOOKS_FILE     BYTE "BOOKS.txt",0
@@ -66,26 +79,32 @@ BOOK5 DB BOOK_SIZE DUP (?)
 BOOK6 DB BOOK_SIZE DUP (?)
 NUM_BOOKS DWORD 0
 BOOKS DD BOOK1, BOOK2, BOOK3, BOOK4, BOOK5, BOOK6, 0AH, 0DH, 0
+
+
+; **********************************************
+; *************** Code Section *****************
+; **********************************************
+
 .CODE
 MSG_DISPLAY proto, var: PTR DWORD
 STRING_INPUT proto, var1: PTR DWORD
 main PROC
 	START:
 	INVOKE MSG_DISPLAY,addr MSG1
-	CALL READINT
+	CALL READINT	; input for options
 
 	CMP EAX, REGISTER
-	JE REG_M
+	JE REG_M		; jump to Register Member section
 	CMP EAX, VIEW_MEMBERS
-	JE VIEW_M
+	JE VIEW_M		; jump to View Members section
 	CMP EAX, VIEW_MF
-	JE VIEW_MFILE
+	JE VIEW_MFILE		; jump to Add Book section
 	CMP EAX, ADD_BOOK
-	JE ADD_B
+	JE ADD_B		; jump to View Books section
 	CMP EAX, VIEW_BOOKS
-	JE VIEW_B
+	JE VIEW_B		; calling function to display message
 	CMP EAX, VIEW_BF
-	JE VIEW_BFILE
+	JE VIEW_BFILE		; taking input in 2D array
 		JMP EXIT_MENU
 
 ;----------------------------------------
