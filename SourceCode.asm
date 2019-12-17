@@ -16,9 +16,11 @@ msg1	 BYTE 0AH
 		 BYTE	"	--------------------------------------------", 0dh, 0ah, 0ah
 		 BYTE	"	1-> Register a Member", 0dh, 0ah
 		 BYTE	"	2-> View Members", 0dh, 0ah
-		 BYTE	"	3-> Add Book", 0dh, 0ah
-		 BYTE	"	4-> View Books", 0dh, 0ah
-		 BYTE	"	5-> Exit Program", 0dh, 0ah
+		 BYTE	"	3-> View Members From File", 0dh, 0ah
+		 BYTE	"	4-> Add Book", 0dh, 0ah
+		 BYTE	"	5-> View Books", 0dh, 0ah
+		 BYTE	"	6-> View Books From Files", 0dh, 0ah
+		 BYTE	"	7-> Exit Program", 0dh, 0ah
 		 BYTE	"	Choose Your Option : ", 0
 REG_MSG	 BYTE "	Enter Member's Name to register: ",0
 VIEW_MEMBERS_MSG BYTE 0Ah,"	Viewing Registered Members: ",0AH, 0DH, 0
@@ -35,14 +37,16 @@ MEMBERS_FILE   BYTE "MEMBERS.txt",0
 BOOKS_FILE     BYTE "BOOKS.txt",0
 filehandle     DWORD ?
 BUFFER_SIZE = 5000
-MAX_INPUT = 40
 buffer_mem   BYTE buffer_size DUP (?)
 buffer_book  BYTE buffer_size DUP (?)
+bytesRead dword 1 dup(0)
 REGISTER	 DWORD 1
 VIEW_MEMBERS DWORD 2
-ADD_BOOK	 DWORD 3
-VIEW_BOOKS	 DWORD 4
-EXITP		 DWORD 5	
+VIEW_MF		 DWORD 3
+ADD_BOOK	 DWORD 4
+VIEW_BOOKS	 DWORD 5
+VIEW_BF		 DWORD 6
+EXITP		 DWORD 7	
 MEMBER_SIZE = 20
 MEMBER1 DB MEMBER_SIZE DUP (?)
 MEMBER2 DB MEMBER_SIZE DUP (?)
@@ -74,10 +78,14 @@ main PROC
 	JE REG_M
 	CMP EAX, VIEW_MEMBERS
 	JE VIEW_M
+	CMP EAX, VIEW_MF
+	JE VIEW_MFILE
 	CMP EAX, ADD_BOOK
 	JE ADD_B
 	CMP EAX, VIEW_BOOKS
 	JE VIEW_B
+	CMP EAX, VIEW_BF
+	JE VIEW_BFILE
 		JMP EXIT_MENU
 
 ;----------------------------------------
@@ -151,13 +159,36 @@ OUTPUT:
 	CALL CRLF
 LOOP OUTPUT
 		JMP START
+
+; VIEW MEMBERS FROM FILE
+VIEW_MFILE:
+	INVOKE CreateFile,
+	ADDR MEMBERS_FILE, ; ptr to filename
+	GENERIC_READ, ; mode = Can read
+	DO_NOT_SHARE, ; share mode
+	NULL, ; ptr to security attributes
+	OPEN_ALWAYS, ; open an existing file
+	FILE_ATTRIBUTE_NORMAL, ; normal file attribute
+	0 ; not used
+	mov filehandle, eax ; Copy handle to variable
+	invoke ReadFile,
+	filehandle, ; file handle
+	addr BUFFER_MEM, ; where to read
+	BUFFER_SIZE, ; num bytes to read
+	addr bytesRead, ; bytes actually read
+	0
+	invoke CloseHandle,
+	filehandle
+	mov edx, offset BUFFER_MEM ; Write String
+	call WriteString
+	JMP START
 ;----------------------------------
 ;--------------ADD BOOKS-----------
 ;----------------------------------	
 	ADD_B:
-		INVOKE MSG_DISPLAY, ADDR ADD_MSG
-		;INVOKE STRING_INPUT, ADDR INPUT_STRING
-MOV ESI, OFFSET BOOKS
+
+	INVOKE MSG_DISPLAY, ADDR ADD_MSG
+	MOV ESI, OFFSET BOOKS
 	MOV EAX, BOOK_SIZE
 	MUL NUM_BOOKS
 	ADD ESI, EAX
@@ -165,13 +196,15 @@ MOV ESI, OFFSET BOOKS
 	MOV ECX, BOOK_SIZE
 	CALL READSTRING
 	INC NUM_BOOKS
-		JMP START
+		
+	JMP START
 ;------------------------------------
 ;-------------VIEW BOOKS-------------
 ;------------------------------------
 	VIEW_B:
-		INVOKE MSG_DISPLAY, ADDR VIEW_BOOKS_MSG
-		MOV ECX, NUM_BOOKS
+	
+	INVOKE MSG_DISPLAY, ADDR VIEW_BOOKS_MSG
+	MOV ECX, NUM_BOOKS
 	cmp ECX, 0
 	JE START
 	MOV EBX, 0
@@ -183,17 +216,41 @@ OUTPUTB:
 	MOV EDX, ESI
 	CALL WRITESTRING
 	INC EBX
-	CALL CRLF
-	
+	CALL CRLF	
 LOOP OUTPUTB
 		
-		JMP START
-
+JMP START
+; VIEW BOOKS FROM FILE
+VIEW_BFILE:
+	INVOKE CreateFile,
+	ADDR BOOKS_FILE, ; ptr to filename
+	GENERIC_READ, ; mode = Can read
+	DO_NOT_SHARE, ; share mode
+	NULL, ; ptr to security attributes
+	OPEN_ALWAYS, ; open an existing file
+	FILE_ATTRIBUTE_NORMAL, ; normal file attribute
+	0 ; not used
+	mov filehandle, eax ; Copy handle to variable
+	invoke ReadFile,
+	filehandle, ; file handle
+	addr BUFFER_BOOK, ; where to read
+	BUFFER_SIZE, ; num bytes to read
+	addr bytesRead, ; bytes actually read
+	0
+	invoke CloseHandle,
+	filehandle
+	mov edx, offset BUFFER_BOOK ; Write String
+	call WriteString
+	JMP START
+;-------------------------------------------
+;----------------EXIT MENU------------------
+;-------------------------------------------
 	EXIT_MENU:
 		INVOKE MSG_DISPLAY, ADDR EXIT_MSG
 	
 	invoke ExitProcess,0
 main endp
+
 ;-------------------------------------------
 ;--------FUNCTION TO DISPLAY A STRING-------
 ;-------------------------------------------
@@ -206,7 +263,7 @@ MSG_DISPLAY PROC USES EDX, VAR: ptr dword
 STRING_INPUT PROC USES EDX ECX, var: ptr dword
 		
 	MOV EDX, VAR
-	MOV ECX, MAX_INPUT
+	MOV ECX, 5000
 	CALL READSTRING
 	RET
 	STRING_INPUT ENDP
